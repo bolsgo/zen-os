@@ -64,10 +64,10 @@ describe("Quickstart reader tour", function()
         assert.are.equal("bottom", shown[1].steps[1].position)
         assert.is_true(shown[1].steps[1].swipe_up)
         assert.is_nil(shown[1].steps[1].target)
+        assert.is_false(plugin.config._meta.quickstart_reader_tour_pending)
 
         shown[1].on_complete()
         assert.are.equal("carousel", opened_layout)
-        assert.is_true(plugin.config._meta.quickstart_reader_tour_pending)
         run_next(0.1)
 
         assert.are.equal(3, #shown[2].steps)
@@ -85,12 +85,22 @@ describe("Quickstart reader tour", function()
             shown[3].steps[1].text)
         assert.are.equal(browser._zen_btn_group.dimen, shown[3].steps[1].target)
         assert.are.equal(browser._zen_grid_dimen, shown[3].steps[1].unhatched)
-        assert.is_true(plugin.config._meta.quickstart_reader_tour_pending)
 
         shown[3].on_complete()
         assert.is_false(plugin.config._meta.quickstart_reader_tour_pending)
         assert.is_false(plugin.config._meta.quickstart_menu_tour_pending)
         assert.are.equal(1, plugin.save_calls)
         assert.are.equal(1, browser_closes)
+    end)
+
+    it("does not restart when dismissed", function()
+        local tour = require("common/quickstart/reader_tour")
+        local function open() return browser end
+
+        assert.is_true(tour.start(plugin, {}, open))
+        shown[1].on_cancel()
+
+        assert.are.equal(0, #scheduled)
+        assert.is_false(tour.start(plugin, {}, open))
     end)
 end)

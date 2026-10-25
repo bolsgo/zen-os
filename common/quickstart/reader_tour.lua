@@ -61,6 +61,8 @@ function M.start(plugin, ui, open_page_browser)
     local UIManager = require("ui/uimanager")
     local Coachmark = require("common/quickstart/menu_coachmark")
     active = true
+    meta.quickstart_reader_tour_pending = false
+    plugin:saveConfig()
 
     local close_page_browser
     local show_layout_step
@@ -103,8 +105,6 @@ function M.start(plugin, ui, open_page_browser)
                     unhatched = browser._zen_grid_dimen,
                 }},
                 on_complete = function()
-                    meta.quickstart_reader_tour_pending = false
-                    plugin:saveConfig()
                     if close_page_browser then close_page_browser() end
                     active = false
                 end,
@@ -129,10 +129,7 @@ function M.start(plugin, ui, open_page_browser)
             UIManager:forceRePaint()
             show_browser_steps(browser)
         end,
-        on_cancel = function()
-            active = false
-            UIManager:scheduleIn(0.5, function() M.start(plugin, ui, open_page_browser) end)
-        end,
+        on_cancel = function() active = false end,
     })
     return true
 end
